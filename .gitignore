@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+olaylar.db
+*.mp4
+*.pt
+.vscode/
+*.db
+*.onnx
+*.engine
+.env
+.idea/
+*.log
