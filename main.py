@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import config
 from detector import Detector
@@ -13,13 +15,31 @@ storage = Storage()
 # Open video capture
 cap = cv2.VideoCapture(config.VIDEO_SOURCE)
 
+# --- Benchmark ---
+# İlk karelerde model kendini ısıtıyor (bellek ayırma, ilk çağrı maliyeti).
+# O kareler gerçek hızı temsil etmiyor, bu yüzden ölçüme katmıyoruz.
+WARMUP_FRAMES = 5
+frame_count = 0          # okunan toplam kare
+measured_frames = 0      # ölçüme dahil edilen kare
+total_inference = 0.0    # ölçülen karelerin toplam çıkarım süresi (saniye)
+
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
+    frame_count += 1
+
     # Perform object detection and tracking
+    # Sadece bu çağrının süresini ölçüyoruz: video okuma, çizim ve ekrana
+    # basma ölçümün dışında kalsın, çünkü nicemleme yalnızca modeli etkiliyor.
+    start = time.perf_counter()
     results = detector.track(frame)
+    inference_time = time.perf_counter() - start
+
+    if frame_count > WARMUP_FRAMES:
+        total_inference += inference_time
+        measured_frames += 1
 
     # Check for new events
     yeni_girenler = event_detector.check_event(results)
@@ -49,3 +69,17 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 storage.kapat()
+
+# --- Benchmark sonucu ---
+if measured_frames > 0:
+    avg_ms = (total_inference / measured_frames) * 1000
+    fps = measured_frames / total_inference
+    print()
+    print("--- Benchmark ---")
+    print(f"Model           : {config.MODEL_PATH}")
+    print(f"Olculen kare    : {measured_frames} (ilk {WARMUP_FRAMES} kare atlandi)")
+    print(f"Toplam cikarim  : {total_inference:.2f} s")
+    print(f"Kare basina     : {avg_ms:.1f} ms")
+    print(f"Cikarim FPS     : {fps:.1f}")
+else:
+    print("Olculecek kadar kare islenmedi.")

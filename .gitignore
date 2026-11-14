@@ -11,3 +11,6 @@ olaylar.db
 .env
 .idea/
 *.log
+# build artifacts
+*_openvino_model/
+kernel.errors.txt

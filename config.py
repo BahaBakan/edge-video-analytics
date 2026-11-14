@@ -1,6 +1,6 @@
 
 # Model
-MODEL_PATH = "yolov8n.pt"
+MODEL_PATH = "yolov8n_int8_openvino_model"  # OpenVINO IR model dosyasi
 
 # Video kaynağı
 VIDEO_SOURCE = "test_pedestrians.mp4"
