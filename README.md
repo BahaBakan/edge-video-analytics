@@ -5,6 +5,12 @@ people in a video stream, turns region crossings into structured events, stores 
 and lets you query that history in natural language — all without sending a single
 frame to the cloud.
 
+![demo](demo.gif)
+
+*People detected and tracked with persistent IDs; the red box is the configured region
+of interest, and the counter increments once per track ID that enters it. Running on the
+INT8 model.*
+
 ## What it does
 
 ```
